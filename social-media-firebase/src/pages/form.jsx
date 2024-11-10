@@ -1,19 +1,21 @@
-// this will be the form page where the user can submit their data and send it to the function in the repo file
-
 import React, { useState } from "react";
-// import './form.css'
 import { addFormData } from "../repo";
 import Navbar from "./navbar";
 
 function Form() {
   const [groupName, setGroupName] = useState("");
   const [groupType, setGroupType] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     addFormData({ groupName, groupType });
     setGroupName("");
     setGroupType("");
+    setMessage("Group Added Successfully!");
+    setTimeout(() => {
+      setMessage("");
+    }, 3000);
   };
 
   return (
@@ -45,6 +47,11 @@ function Form() {
                 className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500"
               />
             </div>
+            {message && (
+              <div className="text-green-500 p-2 rounded-md text-center">
+                {message}
+              </div>
+            )}
             <div className="flex justify-center">
               <button
                 type="submit"
