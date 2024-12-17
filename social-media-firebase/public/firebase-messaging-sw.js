@@ -1,6 +1,7 @@
 // Scripts for firebase and firebase messaging
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js');
 
 
 
@@ -18,28 +19,31 @@ firebase.initializeApp({
 
 // Retrieve firebase messaging
 const messaging = firebase.messaging();
-// Retrieve an instance of Firebase Firestore
-const Db = firebase.firestore();
+const db = firebase.firestore();
 
 // Handle background messages
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(async (payload) => {
   console.log('Received background message', payload);
 
   // Customize notification here
+  const notificationPayload = payload.notification;
+  const dataPayload = payload.data;
+
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
   };
 
+  try {
+    await db.collection('notification-history').add({
+      notificationPayload: notificationPayload,
+      dataPayload: dataPayload
+    });
+    console.log('Notification saved to Firestore');
+  } catch (error) {
+    console.error('Error saving notification to Firestore: ', error);
+  }
+
+
   self.registration.showNotification(notificationTitle, notificationOptions);
-
-
-    // Save to Firestore
-    const notification = {
-        dataPayload: payload.data,
-        notificationPayload: payload.notification
-    };
-
-    addDoc(collection(Db, 'notifications'), notification);
 });
-

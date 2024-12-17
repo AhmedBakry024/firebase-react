@@ -7,7 +7,9 @@ function Navbar() {
         <div className="flex justify-center items-center h-16 bg-gray-800 shadow-lg">
             <Link to="/" className="mx-4 text-white hover:text-blue-400 text-lg font-semibold">Submit Form</Link>
             <Link to="/view" className="mx-4 text-white hover:text-blue-400 text-lg font-semibold">View Form</Link>
-            <Link to="/notification" className="mx-4 text-white hover:text-blue-400 text-lg font-semibold">Notification</Link>
+            <Link to="/topic" className="mx-4 text-white hover:text-blue-400 text-lg font-semibold">Topic Management</Link>
+            <Link to="/Notification" className="mx-4 text-white hover:text-blue-400 text-lg font-semibold">Notification History</Link>
+            
         </div>
     )
 }
