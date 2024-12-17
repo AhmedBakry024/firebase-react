@@ -2,6 +2,9 @@
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js');
 
+
+
+
 // Initialize the Firebase app
 firebase.initializeApp({
     apiKey: "AIzaSyB8XYESLkkZ1k-V5-f0jnP2IeHUq1ukOcc",
@@ -15,6 +18,8 @@ firebase.initializeApp({
 
 // Retrieve firebase messaging
 const messaging = firebase.messaging();
+// Retrieve an instance of Firebase Firestore
+const Db = firebase.firestore();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
@@ -27,5 +32,14 @@ messaging.onBackgroundMessage((payload) => {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+
+
+    // Save to Firestore
+    const notification = {
+        dataPayload: payload.data,
+        notificationPayload: payload.notification
+    };
+
+    addDoc(collection(Db, 'notifications'), notification);
 });
 
