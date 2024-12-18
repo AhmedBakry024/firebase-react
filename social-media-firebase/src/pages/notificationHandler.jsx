@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, onMessage } from 'firebase/messaging';
+import  Db  from '../connection';
+import { collection, addDoc, getDocs, getFirestore } from 'firebase/firestore';
+import { subscribeToTopicMethod, unsubscribeFromTopicMethod } from "../repo";
+
+
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,13 +22,12 @@ const firebaseConfig = {
 const NotificationHandler = () => {
   const [notifications, setNotifications] = useState([]);
 
-  useEffect(() => {
+  useEffect( ()  => {
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const messaging = getMessaging(app);
-
     // Handle foreground messages
-    const unsubscribe = onMessage(messaging, (payload) => {
+    const unsubscribe = onMessage(messaging, async (payload) => {
       console.log('Foreground message received:', payload);
 
       // Create a notification object
@@ -33,8 +38,30 @@ const NotificationHandler = () => {
         data: payload.data || {}
       };
 
+      // create a notification object that holds the payload.notification and payload.data
+      const notification = {
+        notificationPayload: payload.notification,
+        dataPayload: payload.data
+      };
+      try {
+        await addDoc(collection(Db, 'notification-history'), notification);
+        console.log('Notification saved to Firestore');
+      } catch (error) {
+        console.error('Error saving notification to Firestore: ', error);
+      }
+
       // Add to notifications state
       setNotifications(prev => [...prev, newNotification]);
+
+    //  if there's a value in the payload.data.subscribetotopic, subscribe to the topic of that value
+      if (payload.data.subscribetotopic) {
+        await subscribeToTopicMethod(payload.data.subscribetotopic);
+      }
+
+      // if there's a value in the payload.data.unsubscribefromtopic, unsubscribe from the topic of that value
+      if (payload.data.unsubscribefromtopic) {
+        await unsubscribeFromTopicMethod(payload.data.unsubscribefromtopic);
+      }
 
       // Optional: Show browser notification
       if (Notification.permission === 'granted') {
@@ -43,6 +70,8 @@ const NotificationHandler = () => {
         });
       }
     });
+
+    
 
     // Cleanup subscription on unmount
     return () => {
